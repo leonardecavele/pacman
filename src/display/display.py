@@ -10,8 +10,14 @@ class Display:
         print(self.maze)
         rl.init_window(1080, 720, "Pac-Man")
         rl.set_target_fps(60)
-        self.cell_size = (min(1080 // len(self.maze[0]),
-                              720 // len(self.maze)) - 1)
+        self.gap = 10
+        cols = len(self.maze[0])
+        rows = len(self.maze)
+        self.cell_size = min(
+            (1080 - (cols - 1) * self.gap) // cols,
+            (720 - (rows - 1) * self.gap) // rows,
+        ) - 1
+        self._generate_tiles()
         self.maze_image = rl.gen_image_color(1080, 720, rl.BLACK)
         self.draw_maze()
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
@@ -28,7 +34,15 @@ class Display:
         x, y = 0, 0
         for line in range(len(self.maze)):
             for c in self.maze[line]:
-                self.put_cell(c, x * self.cell_size, y * self.cell_size)
+                tile = self.tiles[c]
+                src = rl.Rectangle(0, 0, self.cell_size, self.cell_size)
+                dst = rl.Rectangle(
+                    x * (self.cell_size + self.gap),
+                    y * (self.cell_size + self.gap),
+                    self.cell_size, self.cell_size)
+                rl.image_draw(self.maze_image, tile, src, dst, rl.WHITE)
+                # self.put_cell(c, x * (self.cell_size + self.gap),
+                #               y * (self.cell_size + self.gap))
                 x += 1
             x = 0
             y += 1
@@ -54,3 +68,27 @@ class Display:
         if (c == 0xF):
             rl.image_draw_rectangle(self.maze_image, cell_x, cell_y,
                                     self.cell_size, self.cell_size, rl.WHITE)
+
+    def _generate_tiles(self):
+        self.tiles = []
+        color = rl.Color(0, 0, 200, 255)
+        s = self.cell_size - 1
+
+        for i in range(16):
+            top = bool(i & 1)
+            right = bool((i >> 1) & 1)
+            bot = bool((i >> 2) & 1)
+            left = bool((i >> 3) & 1)
+
+            tile = rl.gen_image_color(s, s, rl.BLACK)
+
+            if (top):
+                rl.image_draw_line(tile, 0, 0, s - 1, 0, color)
+            if (bot):
+                rl.image_draw_line(tile, 0, s - 1, s - 1, s - 1, color)
+            if (right):
+                rl.image_draw_line(tile, s - 1, 0, s - 1, s - 1, color)
+            if (left):
+                rl.image_draw_line(tile, 0, 0, 0, s - 1, color)
+
+            self.tiles.append(tile)
