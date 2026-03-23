@@ -3,7 +3,6 @@ import sys
 from mazegenerator import MazeGenerator
 
 from src.error import ErrorCode
-
 from src.display import Display
 
 

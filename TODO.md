@@ -17,6 +17,23 @@ Dijkstra mc-like
 60 FPS
 interpolation pour mouvement fluide
 
+Coord reel/ecran: -> Centre de l'entité
+
+- affichage
+- Determiner la tuile sur laquelle l'entité se trouve
+
+Coord maze/logique:
+
+- Collisions
+- Calcul de pathfinding
+- Autorisation de mouvement pacman
+
+Loop:
+
+- Faire les updates fantome toutes les nouvelles cases (x frames)
+- Faire les updates pacman tous les ticks
+- Deplacement des entité pixel par pixel (x pixel par tick) tous les ticks
+
 ## LEONARD
 
 - Project setup

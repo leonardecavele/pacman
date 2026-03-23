@@ -1,5 +1,4 @@
 import pyray as rl
-
 from mazegenerator import MazeGenerator
 
 
