@@ -1,6 +1,8 @@
 from .entity import Entity
 from .pac_man import Pac_man
-from .ghost import Ghost
+from .ghost import Blinky, Inky, Pinky, Clyde
 from .collectible import Collectible
 
-__all__ = ["Entity", "Pac_man", "Ghost", "Collectible"]
+__all__ = [
+    "Entity", "Pac_man", "Blinky", "Inky", "Pinky", "Clyde", "Collectible"
+]

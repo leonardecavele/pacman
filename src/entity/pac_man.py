@@ -1,11 +1,12 @@
 from .entity import Entity
-from src.maze import Tile
-from src.type import vec2, maze
+
+from src.maze import Maze
+from src.type import vec2
 
 
 class Pac_man(Entity):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: maze
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: Maze
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, maze)
         self.input: None | str = None
@@ -17,13 +18,25 @@ class Pac_man(Entity):
 
         if self.input is None:
             return
-        elif self.Input.up(self.input) and not self.maze[y][x] & Tile.UP:
+        elif (
+            self.Input.up(self.input)
+            and not self.maze.maze[y][x] & Maze.Tile.UP
+        ):
             self.direction = (0, -1)
-        elif self.Input.right(self.input) and not self.maze[y][x] & Tile.RIGHT:
+        elif (
+            self.Input.right(self.input)
+            and not self.maze.maze[y][x] & Maze.Tile.RIGHT
+        ):
             self.direction = (1, 0)
-        elif self.Input.down(self.input) and not self.maze[y][x] & Tile.DOWN:
+        elif (
+            self.Input.down(self.input)
+            and not self.maze.maze[y][x] & Maze.Tile.DOWN
+        ):
             self.direction = (0, 1)
-        elif self.Input.left(self.input) and not self.maze[y][x] & Tile.LEFT:
+        elif (
+            self.Input.left(self.input)
+            and not self.maze.maze[y][x] & Maze.Tile.LEFT
+        ):
             self.direction = (-1, 0)
         else:
             # invalid key
