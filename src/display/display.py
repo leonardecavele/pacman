@@ -74,12 +74,67 @@ class Display:
             x = 0
             y += 1
 
+    def get_neighboors(self, c: EnhancedCell):
+        x, y = c.pos
+        if (y > 0):
+            c_top = self.cell(x, y - 1)
+        else:
+            c_top = None
+        if (y < len(self.maze) - 1):
+            c_bot = self.cell(x, y + 1)
+        else:
+            c_bot = None
+        if (x > 0):
+            c_left = self.cell(x - 1, y)
+        else:
+            c_left = None
+        if (x < len(self.maze[0]) - 1):
+            c_right = self.cell(x + 1, y)
+        else:
+            c_right = None
+        return (c_top, c_right, c_bot, c_left)
+
+    def put_links(self, c: EnhancedCell, x: int, y: int) -> None:
+        c_top, c_right, c_bot, c_left = self.get_neighboors(c)
+        if (c.bot):
+            if (c_right and not c.right and c_right.bot):
+                rl.image_draw_line(self.maze_image, x + self.cell_size,
+                                   y + self.cell_size,
+                                   x + self.cell_size + self.gap,
+                                   y + self.cell_size, rl.WHITE)
+        if (c.top):
+            if (c_right and not c.right and c_right.top):
+                rl.image_draw_line(self.maze_image, x + self.cell_size,
+                                   y,
+                                   x + self.cell_size + self.gap,
+                                   y, rl.WHITE)
+        if (c.left):
+            if (c_bot and not c.bot and c_bot.left):
+                rl.image_draw_line(self.maze_image, x,
+                                   y + self.cell_size,
+                                   x,
+                                   y + self.cell_size + self.gap, rl.WHITE)
+        if (c.right):
+            if (c_bot and not c.bot and c_bot.right):
+                rl.image_draw_line(self.maze_image, x + self.cell_size,
+                                   y + self.cell_size,
+                                   x + self.cell_size,
+                                   y + self.cell_size + self.gap, rl.WHITE)
+            if (c_right and c_top and not c.top and not c_top.right):
+                rl.image_draw_circle_lines(self.maze_image,
+                                           x + self.cell_size
+                                           + (self.gap // 2), y,
+                                           self.gap // 2,
+                                           rl.WHITE)
+
     def put_cell(self, c: EnhancedCell, cell_x: int, cell_y: int) -> None:
         """Draw cell wall on image
 
         Args:
         cell_x, cell_y: Cell coordinates
         """
+        if (c.top and c.bot and c.left and c.right):
+            return
         if (c.top):
             rl.image_draw_line(self.maze_image, cell_x, cell_y, cell_x +
                                self.cell_size, cell_y, rl.WHITE)
@@ -92,6 +147,4 @@ class Display:
         if (c.left):
             rl.image_draw_line(self.maze_image, cell_x, cell_y,
                                cell_x, cell_y + self.cell_size, rl.WHITE)
-        # if (c == 0xF):
-        #     rl.image_draw_rectangle(self.maze_image, cell_x, cell_y,
-        #                             self.cell_size, self.cell_size, rl.WHITE)
+        self.put_links(c, cell_x, cell_y)
