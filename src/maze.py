@@ -1,4 +1,4 @@
-from enum import IntEnum, Enum
+from enum import IntFlag, Enum
 
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
@@ -16,7 +16,7 @@ class Maze():
 
     class Cell(BaseModel):
 
-        class Walls(IntEnum):
+        class Walls(IntFlag):
             TOP = 1 << 0
             RIGHT = 1 << 1
             BOT = 1 << 2
