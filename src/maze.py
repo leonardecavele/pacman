@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
@@ -7,6 +7,12 @@ from src.type import vec2, brd
 
 
 class Maze():
+
+    class Direction(Enum):
+        UP = (0, -1)
+        RIGHT = (1, 0)
+        DOWN = (0, 1)
+        LEFT = (-1, 0)
 
     class Cell(BaseModel):
 
