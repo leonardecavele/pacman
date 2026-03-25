@@ -20,22 +20,22 @@ class Pac_man(Entity):
             return
         elif (
             self.Input.up(self.input)
-            and not self.maze.maze[y][x] & Maze.Tile.UP
+            and not self.maze.maze[y][x].top
         ):
             self.direction = (0, -1)
         elif (
             self.Input.right(self.input)
-            and not self.maze.maze[y][x] & Maze.Tile.RIGHT
+            and not self.maze.maze[y][x].right
         ):
             self.direction = (1, 0)
         elif (
             self.Input.down(self.input)
-            and not self.maze.maze[y][x] & Maze.Tile.DOWN
+            and not self.maze.maze[y][x].bot
         ):
             self.direction = (0, 1)
         elif (
             self.Input.left(self.input)
-            and not self.maze.maze[y][x] & Maze.Tile.LEFT
+            and not self.maze.maze[y][x].left
         ):
             self.direction = (-1, 0)
         else:

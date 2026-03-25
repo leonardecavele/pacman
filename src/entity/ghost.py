@@ -16,7 +16,7 @@ class Ghost(Entity):
         self.scatter: bool = False
         self.pac_man: Pac_man = pac_man
 
-    def a_star(self, target: vec2) -> vec2:
+    def next_direction(self, target: vec2) -> vec2:
         return (0, 0)
 
     @staticmethod
@@ -47,7 +47,7 @@ class Clyde(Ghost):
     def update(self) -> None:
         direction: vec2
         if self.pos_distance(self.maze_pos, self.pac_man.maze_pos) <= 8:
-            direction = self.a_star((self.maze.height, 0))
+            direction = self.next_direction((self.maze.height, 0))
         else:
-            direction = self.a_star(self.pac_man.maze_pos)
+            direction = self.next_direction(self.pac_man.maze_pos)
         self.direction = direction
