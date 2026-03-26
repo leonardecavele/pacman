@@ -1,3 +1,5 @@
+import random
+
 from math import sqrt
 from enum import IntFlag
 
@@ -50,13 +52,47 @@ class Ghost(Entity):
         self.corner: vec2 = corner_pos
         self.house: vec2 = house_pos
         self.target: vec2 | None = None
+        self.flip: bool = False
+
+    def change_state(self, new_state: State) -> None:
+        match new_state:
+            case self.State.ANGRY:
+                self.velocity = DEFAULT_VELOCITY * 2
+                self.state = self.State.ANGRY
+            case self.State.CHASE:
+                self.flip = True
+                self.state = self.State.CHASE
+            case self.State.SCATTER:
+                self.flip = True
+                self.state = self.State.SCATTER
+            case self.State.EATEN:
+                self.velocity = DEFAULT_VELOCITY * 3
+                self.state = self.State.EATEN
+            case self.State.FRIGHTENED:
+                self.flip = True
+                self.state = self.State.FRIGHTENED
 
     def target_direction(self) -> None:
         x, y = self.maze_pos
         directions = self.legal_directions(x, y)
 
-        if not directions or self.target is None:
+        # case ghost must flip
+        if self.flip:
+            back = self.back_direction
+            if back is not None:
+                self.direction = back.value
+            self.flip = False
+            return
+
+        # case ghost has no valid move
+        if not directions:
             self.direction = (0, 0)
+            return
+
+        # case ghost must move randomly
+        if self.target is None:
+            random_direction = random.choice(directions)
+            self.direction = random_direction.value
             return
 
         best_direction: Maze.Direction = directions[0]
@@ -121,16 +157,18 @@ class Blinky(Ghost):
             house_pos,
             (self.maze.width - 1, 0)
         )
-        self.target: vec2 = self.corner
+        self.target = self.corner
 
     def update(self) -> None:
-        if (
-            self.state & self.State.SCATTER
-            and not self.state & self.State.ANGRY
-        ):
-            self.target = self.corner
-        else:
+        if self.state & self.State.EATEN:
+            self.target = self.house
+        elif self.state & self.State.FRIGHTENED:
+            self.target = None
+        elif self.state & (self.State.CHASE | self.State.ANGRY):
             self.target = self.pac_man.maze_pos
+        else:
+            self.target = self.corner
+
         self.target_direction()
 
 
@@ -148,13 +186,18 @@ class Inky(Ghost):
             house_pos,
             (self.maze.width - 1, self.maze.height - 1)
         )
-        self.target: vec2 = self.corner
+        self.target = self.corner
 
     def update(self) -> None:
-        if self.state & self.State.SCATTER:
-            self.target = self.corner
-        else:
+        if self.state & self.State.EATEN:
+            self.target = self.house
+        elif self.state & self.State.FRIGHTENED:
+            self.target = None
+        elif self.state & self.State.CHASE:
             self.target = self.pac_man.maze_pos
+        else:
+            self.target = self.corner
+
         self.target_direction()
 
 
@@ -172,13 +215,18 @@ class Pinky(Ghost):
             house_pos,
             (0, 0)
         )
-        self.target: vec2 = self.corner
+        self.target = self.corner
 
     def update(self) -> None:
-        if self.state & self.State.SCATTER:
-            self.target = self.corner
-        else:
+        if self.state & self.State.EATEN:
+            self.target = self.house
+        elif self.state & self.State.FRIGHTENED:
+            self.target = None
+        elif self.state & self.State.CHASE:
             self.target = self.pac_man.maze_pos
+        else:
+            self.target = self.corner
+
         self.target_direction()
 
 
@@ -196,14 +244,19 @@ class Clyde(Ghost):
             house_pos,
             (0, self.maze.height - 1)
         )
-        self.target: vec2 = self.corner
+        self.target = self.corner
 
     def update(self) -> None:
-        if (
-            self.euclidean(self.maze_pos, self.pac_man.maze_pos) <= 8
-            or self.state & self.State.SCATTER
-        ):
-            self.target = self.corner
+        if self.state & self.State.EATEN:
+            self.target = self.house
+        elif self.state & self.State.FRIGHTENED:
+            self.target = None
+        elif self.state & self.State.CHASE:
+            if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 8:
+                self.target = self.corner
+            else:
+                self.target = self.pac_man.maze_pos
         else:
-            self.target = self.pac_man.maze_pos
+            self.target = self.corner
+
         self.target_direction()
