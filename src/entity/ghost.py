@@ -10,29 +10,7 @@ from src.type import vec2
 from src.maze import Maze
 
 
-# frightened mode
-# flip direction immediately ( go back ) and then move randomly
-
-
-# CHASE MODE
-# flip direction immediately ( go back ) when entering
-# depends on the ghost
-
-# scatter mode
-# flip direction immediately ( go back ) when entering
-# go on their corners
-# tweek by the main loop but only a few frames
-
-
-# house mode
-# run at house and goes back to chase or scatter depending
-# on the game state
-
-# find a way to increase velocity of blinky in angry mode
-
-
 # update is to be called every new cell entered, not every frame
-
 
 class Ghost(Entity):
     class State(IntFlag):
