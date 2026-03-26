@@ -1,4 +1,5 @@
 import random
+import heapq
 
 from math import sqrt
 from enum import IntFlag
@@ -51,11 +52,105 @@ class Ghost(Entity, ABC):
                 self.flip = True
                 self.state = self.State.FRIGHTENED
 
+    def a_star_direction(self, target: vec2) -> vec2 | None:
+        counter: int = 0
+
+        def push(
+            queue: list[tuple[int, int, Maze.Cell]],
+            new_cell: Maze.Cell,
+            score: int
+        ) -> None:
+            nonlocal counter
+            heapq.heappush(queue, (score, counter, new_cell))
+            counter += 1
+
+        start_x, start_y = self.maze_pos
+        goal_x, goal_y = target
+
+        if not (0 <= goal_x < self.maze.width and 0 <= goal_y < self.maze.height):
+            return None
+
+        start_pos: vec2 = (start_x, start_y)
+        goal_pos: vec2 = (goal_x, goal_y)
+
+        if start_pos == goal_pos:
+            return None
+
+        back: Maze.Direction | None = self.back_direction
+
+        visited: set[vec2] = set()
+        parent: dict[vec2, vec2] = {}
+
+        queue: list[tuple[int, int, Maze.Cell]] = []
+        g: dict[vec2, int] = {}
+        h: dict[vec2, int] = {}
+
+        g[start_pos] = 0
+        h[start_pos] = self.manhattan(start_pos, goal_pos)
+        push(
+            queue,
+            self.maze.maze[start_y][start_x],
+            g[start_pos] + h[start_pos]
+        )
+
+        while queue:
+            _, _, current = heapq.heappop(queue)
+            x, y = current.pos
+
+            if (x, y) == goal_pos:
+                current_pos: vec2 = (x, y)
+
+                while current_pos in parent and parent[current_pos] != start_pos:
+                    current_pos = parent[current_pos]
+
+                if current_pos not in parent:
+                    return None
+
+                dx: int = current_pos[0] - start_x
+                dy: int = current_pos[1] - start_y
+                return (dx, dy)
+
+            if (x, y) in visited:
+                continue
+
+            visited.add((x, y))
+
+            for direction in Maze.Direction:
+                if (x, y) == start_pos and back is not None and direction == back:
+                    continue
+
+                if self.maze.maze[y][x].value & Maze.convert(direction):
+                    continue
+
+                new_x: int = x + direction.value[0]
+                new_y: int = y + direction.value[1]
+
+                if not (0 <= new_x < self.maze.width and 0 <= new_y < self.maze.height):
+                    continue
+
+                if (new_x, new_y) in visited:
+                    continue
+
+                new_pos: vec2 = (new_x, new_y)
+                new_g: int = g[(x, y)] + 1
+
+                if new_pos not in g or new_g < g[new_pos]:
+                    parent[new_pos] = (x, y)
+                    g[new_pos] = new_g
+                    h[new_pos] = self.manhattan(new_pos, goal_pos)
+                    push(
+                        queue,
+                        self.maze.maze[new_y][new_x],
+                        new_g + h[new_pos]
+                    )
+
+        return None
+
+
     def target_direction(self) -> None:
         x, y = self.maze_pos
         directions = self.legal_directions(x, y)
 
-        # case ghost must flip
         if self.flip:
             back = self.back_direction
             if back is not None:
@@ -63,26 +158,30 @@ class Ghost(Entity, ABC):
             self.flip = False
             return
 
-        # case ghost has no valid move
         if not directions:
             self.direction = (0, 0)
             return
 
-        # case ghost must move randomly
         if self.target is None:
             random_direction = random.choice(directions)
             self.direction = random_direction.value
+            return
+
+        next_direction: vec2 | None = self.a_star_direction(self.target)
+
+        if next_direction is not None:
+            self.direction = next_direction
             return
 
         best_direction: Maze.Direction = directions[0]
         best_pos: vec2 = (
             x + best_direction.value[0], y + best_direction.value[1]
         )
-        best_distance = self.manhattan(best_pos, self.target)
+        best_distance: int = self.manhattan(best_pos, self.target)
 
         for direction in directions[1:]:
-            pos = (x + direction.value[0], y + direction.value[1])
-            distance = self.manhattan(pos, self.target)
+            pos: vec2 = (x + direction.value[0], y + direction.value[1])
+            distance: int = self.manhattan(pos, self.target)
 
             if distance < best_distance:
                 best_distance = distance
@@ -261,7 +360,7 @@ class Clyde(Ghost):
         elif self.state & self.State.FRIGHTENED:
             self.target = None
         elif self.state & self.State.CHASE:
-            if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 8:
+            if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 4:
                 self.target = self.corner
             else:
                 self.target = self.pac_man.maze_pos
