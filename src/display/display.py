@@ -38,8 +38,6 @@ class Display:
         raylib.draw_texture(self.maze_texture, 0, 0, raylib.WHITE)
 
         for entity in entities:
-            x: int = int(entity.screen_pos[0])
-            y: int = int(entity.screen_pos[1])
 
             if isinstance(entity, Pac_man):
                 color = raylib.YELLOW
@@ -54,7 +52,13 @@ class Display:
             else:
                 color = raylib.GRAY
 
-            raylib.draw_rectangle(x, y, self.cell_size, self.cell_size, color)
+            entity_size: int = max(4, self.cell_size - 8)
+            draw_x: int = int(entity.screen_pos[0] - entity_size / 2)
+            draw_y: int = int(entity.screen_pos[1] - entity_size / 2)
+
+            raylib.draw_rectangle(
+                draw_x, draw_y, entity_size, entity_size, color
+            )
 
         raylib.end_drawing()
 

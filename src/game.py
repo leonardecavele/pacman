@@ -32,10 +32,10 @@ class Game:
 
         center: vec2 = (self.maze.width // 2, self.maze.height // 2)
 
-        top_pos: vec2 = (self.maze.width // 2, 0)
-        bottom_pos: vec2 = (self.maze.width // 2, self.maze.height - 1)
-        left_pos: vec2 = (0, self.maze.height // 2)
-        right_pos: vec2 = (self.maze.width - 1, self.maze.height // 2)
+        top_pos: vec2 = (self.maze.width // 2, 1)
+        bottom_pos: vec2 = (self.maze.width // 2, self.maze.height - 2)
+        left_pos: vec2 = (1, self.maze.height // 2)
+        right_pos: vec2 = (self.maze.width - 2, self.maze.height // 2)
 
         self.pac_man: Pac_man = Pac_man(
             screen_pos=self._maze_to_screen(center),
@@ -89,6 +89,10 @@ class Game:
             self.pac_man,
         ]
 
+        for entity in self.entity_list:
+            if isinstance(entity, Ghost):
+                entity.update()
+
     def run(self) -> None:
         while not self.display.should_close():
             dt: float = self.display.get_frame_time()
@@ -115,25 +119,35 @@ class Game:
                         entity.change_state(global_ghost_state)
 
         for entity in self.entity_list:
-            self._move_entity(entity, dt)
-            self._sync_maze_pos_from_screen_pos(entity)
+            previous_maze_pos: vec2 = entity.maze_pos
 
-        for entity in self.entity_list[:-1]:
-            entity.update()
+            entity.move(dt)
+            self._sync_maze_pos_from_screen_pos(entity)
+            self._snap_entity_to_corridor(entity)
+
+            if isinstance(entity, Ghost) and entity.maze_pos != previous_maze_pos:
+                entity.update()
 
         self.tick_accumulator += dt
         while self.tick_accumulator >= self.tick_interval:
             self.pac_man.update()
             self.tick_accumulator -= self.tick_interval
 
-    def _move_entity(self, entity: Entity, dt: float) -> None:
-        sx, sy = entity.screen_pos
+    def _snap_entity_to_corridor(self, entity: Entity) -> None:
+        center_x: float
+        center_y: float
+        center_x, center_y = self._maze_to_screen(entity.maze_pos)
+
+        dx: int
+        dy: int
         dx, dy = entity.direction
 
-        entity.screen_pos = (
-            sx + dx * entity.velocity * dt,
-            sy + dy * entity.velocity * dt,
-        )
+        if dx != 0:
+            entity.screen_pos = (entity.screen_pos[0], center_y)
+        elif dy != 0:
+            entity.screen_pos = (center_x, entity.screen_pos[1])
+        else:
+            entity.screen_pos = (center_x, center_y)
 
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
         entity.maze_pos = self._screen_to_maze(entity.screen_pos)
