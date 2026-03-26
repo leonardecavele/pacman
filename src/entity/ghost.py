@@ -138,7 +138,7 @@ class Blinky(Ghost):
             m,
             pac_man,
             house_pos,
-            (self.maze.width - 1, 0)
+            (m.width - 1, 0)
         )
         self.target = self.corner
 
@@ -173,7 +173,7 @@ class Inky(Ghost):
             m,
             pac_man,
             house_pos,
-            (self.maze.width - 1, self.maze.height - 1)
+            (m.width - 1, self.maze.height - 1)
         )
         self.blinky: Blinky = blinky
         self.target = self.corner
@@ -251,7 +251,7 @@ class Clyde(Ghost):
             m,
             pac_man,
             house_pos,
-            (0, self.maze.height - 1)
+            (0, m.height - 1)
         )
         self.target = self.corner
 
