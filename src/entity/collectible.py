@@ -9,3 +9,8 @@ class Collectible(Entity):
 class Pacgum(Collectible):
     def update(self):
         return
+
+
+class SuperPacgum(Collectible):
+    def update(self):
+        return
