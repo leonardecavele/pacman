@@ -1,4 +1,4 @@
-import pyray as raylib
+import pyray as rl
 
 from src.display.maze_renderer import MazeRenderer
 from src.maze import Maze
@@ -21,11 +21,11 @@ class Display:
 
         self._compute_cell_gap_size()
 
-        raylib.init_window(self.width, self.height, self.title)
-        raylib.set_target_fps(self.fps)
+        rl.init_window(self.width, self.height, self.title)
+        rl.set_target_fps(self.fps)
 
-        self.maze_image = raylib.gen_image_color(
-            self.width, self.height, raylib.BLACK
+        self.maze_image = rl.gen_image_color(
+            self.width, self.height, rl.BLACK
         )
 
         renderer = MazeRenderer(
@@ -44,48 +44,48 @@ class Display:
             # self._DEBUG_grid()
             rl.end_drawing()
 
-        self.maze_texture = raylib.load_texture_from_image(self.maze_image)
+        self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
     def draw(self, entities: list[Entity]) -> None:
-        raylib.begin_drawing()
-        raylib.clear_background(raylib.WHITE)
-        raylib.draw_texture(self.maze_texture, 0, 0, raylib.WHITE)
+        rl.begin_drawing()
+        rl.clear_background(rl.WHITE)
+        rl.draw_texture(self.maze_texture, 0, 0, rl.WHITE)
 
         for entity in entities:
 
             if isinstance(entity, Pac_man):
-                color = raylib.YELLOW
+                color = rl.YELLOW
             elif isinstance(entity, Blinky):
-                color = raylib.RED
+                color = rl.RED
             elif isinstance(entity, Pinky):
-                color = raylib.PINK
+                color = rl.PINK
             elif isinstance(entity, Inky):
-                color = raylib.SKYBLUE
+                color = rl.SKYBLUE
             elif isinstance(entity, Clyde):
-                color = raylib.ORANGE
+                color = rl.ORANGE
             else:
-                color = raylib.GRAY
+                color = rl.GRAY
 
             entity_size: int = max(4, self.cell_size - 8)
             draw_x: int = int(entity.screen_pos[0] - entity_size / 2)
             draw_y: int = int(entity.screen_pos[1] - entity_size / 2)
 
-            raylib.draw_rectangle(
+            rl.draw_rectangle(
                 draw_x, draw_y, entity_size, entity_size, color
             )
 
-        raylib.end_drawing()
+        rl.end_drawing()
 
     def should_close(self) -> bool:
-        return raylib.window_should_close()
+        return rl.window_should_close()
 
     def get_frame_time(self) -> float:
-        return raylib.get_frame_time()
+        return rl.get_frame_time()
 
     def close(self) -> None:
-        raylib.unload_texture(self.maze_texture)
-        raylib.unload_image(self.maze_image)
-        raylib.close_window()
+        rl.unload_texture(self.maze_texture)
+        rl.unload_image(self.maze_image)
+        rl.close_window()
 
     def _DEBUG_grid(self):
         for i in range(self.maze.width + 1):
