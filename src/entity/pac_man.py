@@ -25,9 +25,10 @@ class Pac_man(Entity):
         return False
 
     # called every tick
-    def update(self) -> None:
+    def update(self, aligned: bool = True) -> None:
         if (
-            self.next_direction is not None
+            aligned
+            and self.next_direction is not None
             and self._can_move(self.next_direction)
         ):
             self.direction = self.next_direction

@@ -128,7 +128,19 @@ class Game:
 
         self.tick_accumulator += dt
         while self.tick_accumulator >= self.tick_interval:
-            self.pac_man.update()
+            center = self._maze_to_screen(self.pac_man.maze_pos)
+            px, py = self.pac_man.screen_pos
+            dx, dy = self.pac_man.direction
+            threshold = 3
+
+            if dx != 0:
+                aligned = abs(px - center[0]) <= threshold
+            elif dy != 0:
+                aligned = abs(py - center[1]) <= threshold
+            else:
+                aligned = True
+
+            self.pac_man.update(aligned)
             self.tick_accumulator -= self.tick_interval
 
         for entity in self.entity_list:
@@ -169,12 +181,12 @@ class Game:
         screen_x: int = (
             self.display.gap
             + x * step
-            + self.display.cell_size // 2
+            + self.display.cell_size // 2 + 1
         )
         screen_y: int = (
             self.display.gap
             + y * step
-            + self.display.cell_size // 2
+            + self.display.cell_size // 2 + 1
         )
         return (screen_x, screen_y)
 

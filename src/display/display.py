@@ -2,10 +2,7 @@ import pyray as rl
 
 from src.display.maze_renderer import MazeRenderer
 from src.maze import Maze
-from src.entity import Pacgum, SuperPacgum, Collectible
-from src.type import vec2
-from .textures import Textures
-from src.entity import Entity, Blinky, Inky, Pinky, Clyde, Pac_man
+from src.entity import Entity
 
 
 class Display:
@@ -41,7 +38,7 @@ class Display:
                 x, y = e.screen_pos
                 x = x - self.cell_size // 2
                 y = y - self.cell_size // 2
-                rl.draw_texture(e.sprite, x + 1, y + 1, rl.WHITE)
+                rl.draw_texture(e.sprite, x, y, rl.WHITE)
         rl.end_drawing()
 
     def should_close(self) -> bool:
@@ -81,12 +78,3 @@ class Display:
                 self.gap -= 2
                 continue
             break
-
-    def _maze_to_screen_pos(self, maze_pos: vec2) -> vec2:
-        screen_pos: vec2 = (
-            maze_pos[0] * (self.cell_size + self.gap) +
-            self.gap + self.cell_size // 2 + 1,
-            maze_pos[1] * (self.cell_size + self.gap) +
-            self.gap + self.cell_size // 2 + 1
-        )
-        return (screen_pos)
